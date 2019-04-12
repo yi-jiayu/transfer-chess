@@ -26,20 +26,30 @@ function Square(props) {
 }
 
 class Board extends Component {
-  createBoard() {
-    const board = this.props.board;
-    const rows = [];
-    for (let i = 0; i < board.length; i++) {
-      const squares = [];
-      const row = board[i];
-      for (let j = 0; j < row.length; j++) {
-        const piece = row[j];
-          squares.push(<Square piece={piece} key={[j, piece]}
-                               onClick={() => console.log(`clicked square at ${i},${j}`)}/>);
-      }
-      rows.push(<div key={[i, row]}>{squares}</div>)
+  constructor(props) {
+    super(props);
+    this.state = {
+      board: props.board,
+    };
+  }
+
+  handleClick(i, j) {
+    if (this.state.board[i][j]) {
+      console.log(`clicked ${this.state.board[i][j]} at ${i},${j}`);
     }
-    return rows;
+  }
+
+  createBoard() {
+    return this.state.board.map((row, i) =>
+        <div key={[i, row]}>
+          {row.map((piece, j) => {
+            return <Square
+                piece={piece}
+                key={[j, piece]}
+                onClick={() => this.handleClick(i, j)}
+            />;
+          })}
+        </div>);
   }
 
   render() {
