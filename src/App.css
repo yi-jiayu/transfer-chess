@@ -24,15 +24,19 @@
   background-position: center;
 }
 
-.square:hover {
+[data-turn=r][data-action=picking] .square.side-r:hover {
   border: 2px solid red;
 }
 
-.square[data-selected] {
+[data-turn=b][data-action=picking] .square.side-b:hover {
+  border: 2px solid red;
+}
+
+.square.side-b[data-selected], .square.side-r[data-selected] {
   border: 2px solid green;
 }
 
-.square[data-selected]:hover {
+.square.side-b[data-selected]:hover, .square.side-r[data-selected]:hover {
   border: 2px solid green;
 }
 

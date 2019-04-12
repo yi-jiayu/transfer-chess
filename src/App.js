@@ -18,7 +18,7 @@ const STARTING_POSITION = [
 function Square(props) {
   const classes = ['square'];
   if (props.piece) {
-    classes.push(`piece-${props.piece}`);
+    classes.push(`piece-${props.piece}`, `side-${props.piece[0]}`);
   }
   return (
       <div className={classes.join(' ')} onClick={props.onClick} data-selected={props.selected || null}/>
@@ -31,6 +31,7 @@ class Board extends Component {
     this.state = {
       board: props.board,
       selected: [null, null],
+      turn: 'r',
     };
   }
 
@@ -48,16 +49,16 @@ class Board extends Component {
       this.setState({
         board,
         selected: [null, null],
+        turn: this.state.turn === 'r' ? 'b' : 'r',
       })
-    } else if (this.state.board[i][j]) {
+    } else if (this.state.board[i][j] && this.state.board[i][j].startsWith(this.state.turn)) {
       this.setState({
         selected: [i, j],
       });
     }
   }
 
-  createBoard() {
-    const [x, y] = this.state.selected;
+  createBoard(x, y) {
     return this.state.board.map((row, i) =>
         <div key={[i, row, i === x]}>
           {row.map((piece, j) => {
@@ -72,9 +73,10 @@ class Board extends Component {
   }
 
   render() {
+    const [x, y] = this.state.selected;
     return (
-        <div>
-          {this.createBoard()}
+        <div data-turn={this.state.turn} data-action={x && y ? 'placing' : 'picking'}>
+          {this.createBoard(x, y)}
         </div>
     );
   }
