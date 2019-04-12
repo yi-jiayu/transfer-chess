@@ -7,7 +7,7 @@ function Square(props) {
     classes.push(`piece-${props.piece}`);
   }
   return (
-      <div className={classes.join(' ')}/>
+      <div className={classes.join(' ')} onClick={props.onClick}/>
   );
 }
 
@@ -20,7 +20,8 @@ class Board extends Component {
       const row = board[i];
       for (let j = 0; j < row.length; j++) {
         const piece = row[j];
-        squares.push(<Square piece={piece} key={[j, piece]}/>);
+          squares.push(<Square piece={piece} key={[j, piece]}
+                               onClick={() => console.log(`clicked square at ${i},${j}`)}/>);
       }
       rows.push(<div key={[i, row]}>{squares}</div>)
     }
