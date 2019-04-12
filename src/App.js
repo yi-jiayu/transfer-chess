@@ -41,9 +41,6 @@ class App extends Component {
     return (
         <div className="App">
           <header className="App-header">
-            <p>
-              Edit <code>src/App.js</code> and save to reload.
-            </p>
             <Board board={
               [
                 ['rR', 'rH', 'rE', 'rA', 'rG', 'rA', 'rE', 'rH', 'rR'],
@@ -58,14 +55,6 @@ class App extends Component {
                 ['bR', 'bH', 'bE', 'bA', 'bG', 'bA', 'bE', 'bH', 'bR'],
               ]
             }/>
-            <a
-                className="App-link"
-                href="https://reactjs.org"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-              Learn React
-            </a>
           </header>
         </div>
     );
