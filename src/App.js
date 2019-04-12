@@ -1,6 +1,20 @@
 import React, { Component } from 'react';
 import './App.css';
 
+const STARTING_POSITION = [
+  ['rR', 'rH', 'rE', 'rA', 'rG', 'rA', 'rE', 'rH', 'rR'],
+  ['', '', '', '', '', '', '', '', ''],
+  ['', 'rC', '', '', '', '', '', 'rC', ''],
+  ['rP', '', 'rP', '', 'rP', '', 'rP', '', 'rP'],
+  ['', '', '', '', '', '', '', '', ''],
+  ['', '', '', '', '', '', '', '', ''],
+  ['bP', '', 'bP', '', 'bP', '', 'bP', '', 'bP'],
+  ['', 'bC', '', '', '', '', '', 'bC', ''],
+  ['', '', '', '', '', '', '', '', ''],
+  ['bR', 'bH', 'bE', 'bA', 'bG', 'bA', 'bE', 'bH', 'bR'],
+];
+
+
 function Square(props) {
   const classes = ['square'];
   if (props.piece) {
@@ -42,20 +56,7 @@ class App extends Component {
     return (
         <div className="App">
           <header className="App-header">
-            <Board board={
-              [
-                ['rR', 'rH', 'rE', 'rA', 'rG', 'rA', 'rE', 'rH', 'rR'],
-                ['', '', '', '', '', '', '', '', ''],
-                ['', 'rC', '', '', '', '', '', 'rC', ''],
-                ['rP', '', 'rP', '', 'rP', '', 'rP', '', 'rP'],
-                ['', '', '', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '', '', ''],
-                ['bP', '', 'bP', '', 'bP', '', 'bP', '', 'bP'],
-                ['', 'bC', '', '', '', '', '', 'bC', ''],
-                ['', '', '', '', '', '', '', '', ''],
-                ['bR', 'bH', 'bE', 'bA', 'bG', 'bA', 'bE', 'bH', 'bR'],
-              ]
-            }/>
+            <Board board={STARTING_POSITION}/>
           </header>
         </div>
     );
