@@ -28,6 +28,14 @@
   border: 2px solid red;
 }
 
+.square[data-selected] {
+  border: 2px solid green;
+}
+
+.square[data-selected]:hover {
+  border: 2px solid green;
+}
+
 .piece-bA {
   background-image: url('/svg/bA.svg');
 }

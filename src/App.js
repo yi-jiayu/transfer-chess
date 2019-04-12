@@ -21,7 +21,7 @@ function Square(props) {
     classes.push(`piece-${props.piece}`);
   }
   return (
-      <div className={classes.join(' ')} onClick={props.onClick}/>
+      <div className={classes.join(' ')} onClick={props.onClick} data-selected={props.selected || null}/>
   );
 }
 
@@ -30,23 +30,42 @@ class Board extends Component {
     super(props);
     this.state = {
       board: props.board,
+      selected: [null, null],
     };
   }
 
   handleClick(i, j) {
-    if (this.state.board[i][j]) {
-      console.log(`clicked ${this.state.board[i][j]} at ${i},${j}`);
+    const [x, y] = this.state.selected;
+    if (i === x && j === y) {
+      this.setState({
+        selected: [null, null],
+      });
+    } else if (x && y) {
+      const piece = this.state.board[x][y];
+      const board = this.state.board.map(row => row.slice());
+      board[i][j] = piece;
+      board[x][y] = '';
+      this.setState({
+        board,
+        selected: [null, null],
+      })
+    } else if (this.state.board[i][j]) {
+      this.setState({
+        selected: [i, j],
+      });
     }
   }
 
   createBoard() {
+    const [x, y] = this.state.selected;
     return this.state.board.map((row, i) =>
-        <div key={[i, row]}>
+        <div key={[i, row, i === x]}>
           {row.map((piece, j) => {
             return <Square
                 piece={piece}
-                key={[j, piece]}
+                key={[j, piece, i === x && j === y]}
                 onClick={() => this.handleClick(i, j)}
+                selected={i === x && j === y}
             />;
           })}
         </div>);
