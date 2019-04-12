@@ -20,9 +20,9 @@ class Board extends Component {
       const row = board[i];
       for (let j = 0; j < row.length; j++) {
         const piece = row[j];
-        squares.push(<Square piece={piece} key={[i, j]}/>);
+        squares.push(<Square piece={piece} key={[j, piece]}/>);
       }
-      rows.push(<div key={i}>{squares}</div>)
+      rows.push(<div key={[i, row]}>{squares}</div>)
     }
     return rows;
   }
