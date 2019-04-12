@@ -45,7 +45,7 @@ class Board extends Component {
     } else
     // if a piece is currently selected, move it to the clicked position and unselect it
     // and update whose turn it is
-    if (x && y) {
+    if (x !== null && y !== null) {
       const piece = this.state.board[x][y];
       const board = this.state.board.map(row => row.slice());
       board[i][j] = piece;
@@ -75,13 +75,14 @@ class Board extends Component {
                 selected={i === x && j === y}
             />;
           })}
-        </div>);
+        </div>
+    );
   }
 
   render() {
     const [x, y] = this.state.selected;
     return (
-        <div data-turn={this.state.turn} data-action={x && y ? 'placing' : 'picking'}>
+        <div data-turn={this.state.turn} data-action={x !== null && y !== null ? 'placing' : 'picking'}>
           {this.createBoard(x, y)}
         </div>
     );
