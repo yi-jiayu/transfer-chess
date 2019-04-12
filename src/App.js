@@ -37,11 +37,15 @@ class Board extends Component {
 
   handleClick(i, j) {
     const [x, y] = this.state.selected;
+    // if the selected piece is clicked again, unselect it
     if (i === x && j === y) {
       this.setState({
         selected: [null, null],
       });
-    } else if (x && y) {
+    } else
+    // if a piece is currently selected, move it to the clicked position and unselect it
+    // and update whose turn it is
+    if (x && y) {
       const piece = this.state.board[x][y];
       const board = this.state.board.map(row => row.slice());
       board[i][j] = piece;
@@ -51,7 +55,9 @@ class Board extends Component {
         selected: [null, null],
         turn: this.state.turn === 'r' ? 'b' : 'r',
       })
-    } else if (this.state.board[i][j] && this.state.board[i][j].startsWith(this.state.turn)) {
+    } else
+    // if a piece is clicked and it is that side's turn, make it the selected piece
+    if (this.state.board[i][j] && this.state.board[i][j].startsWith(this.state.turn)) {
       this.setState({
         selected: [i, j],
       });
