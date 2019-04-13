@@ -106,9 +106,9 @@ class App extends Component {
   render() {
     return (
         <div className="App">
-          <header className="App-header">
+          <main className="App-content">
             <Game board={STARTING_POSITION}/>
-          </header>
+          </main>
         </div>
     );
   }
