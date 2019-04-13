@@ -27,14 +27,37 @@ function Square(props) {
   );
 }
 
-class Board extends Component {
+function Board({position, turn, selected: [x, y], orientation, handleClick}) {
+  const board = position.map((row, i) =>
+      <div key={[i, row, i === x]}>
+        {row.map((piece, j) => {
+          return <Square
+              piece={piece}
+              key={[j, piece, i === x && j === y]}
+              onClick={() => handleClick(i, j)}
+              selected={i === x && j === y}
+          />;
+        })}
+      </div>);
+  if (orientation === 'b') {
+    board.reverse();
+  }
+  return (
+      <div data-turn={turn} data-action={x !== null && y !== null ? 'placing' : 'picking'}>
+        {board}
+      </div>
+  );
+}
+
+class Game extends Component {
   constructor(props) {
     super(props);
     this.state = {
       board: props.board,
-      selected: [null, null],
       turn: 'r',
-    };
+      selected: [null, null],
+      orientation: 'r',
+    }
   }
 
   handleClick(i, j) {
@@ -54,8 +77,8 @@ class Board extends Component {
       board[x][y] = '';
       this.setState({
         board,
-        selected: [null, null],
         turn: this.state.turn === 'r' ? 'b' : 'r',
+        selected: [null, null],
       })
     } else
     // if a piece is clicked and it is that side's turn, make it the selected piece
@@ -66,28 +89,14 @@ class Board extends Component {
     }
   }
 
-  createBoard(x, y) {
-    return this.state.board.map((row, i) =>
-        <div key={[i, row, i === x]}>
-          {row.map((piece, j) => {
-            return <Square
-                piece={piece}
-                key={[j, piece, i === x && j === y]}
-                onClick={() => this.handleClick(i, j)}
-                selected={i === x && j === y}
-            />;
-          })}
-        </div>
-    );
-  }
-
   render() {
-    const [x, y] = this.state.selected;
-    return (
-        <div data-turn={this.state.turn} data-action={x !== null && y !== null ? 'placing' : 'picking'}>
-          {this.createBoard(x, y)}
-        </div>
-    );
+    return <Board
+        position={this.state.board}
+        turn={this.state.turn}
+        selected={this.state.selected}
+        orientation={this.state.orientation}
+        handleClick={(i, j) => this.handleClick(i, j)}
+    />
   }
 }
 
@@ -96,7 +105,7 @@ class App extends Component {
     return (
         <div className="App">
           <header className="App-header">
-            <Board board={STARTING_POSITION}/>
+            <Game board={STARTING_POSITION}/>
           </header>
         </div>
     );
