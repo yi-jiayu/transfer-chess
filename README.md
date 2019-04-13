@@ -75,7 +75,7 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/tr
 cd public/svg
 for f in *.svg; do 
     piece=${f%.svg}
-    echo ".piece-$piece { background-image: url('/svg/$piece.svg'); }"
+    echo "[data-piece=$piece] { background-image: url('/svg/$piece.svg'); }"
 done
 cd -
 ```

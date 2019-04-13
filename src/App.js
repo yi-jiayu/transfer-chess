@@ -16,12 +16,14 @@ const STARTING_POSITION = [
 
 
 function Square(props) {
-  const classes = ['square'];
-  if (props.piece) {
-    classes.push(`piece-${props.piece}`, `side-${props.piece[0]}`);
-  }
   return (
-      <div className={classes.join(' ')} onClick={props.onClick} data-selected={props.selected || null}/>
+      <div
+          className="square"
+          onClick={props.onClick}
+          data-side={props.piece && props.piece[0]}
+          data-piece={props.piece || null}
+          data-selected={props.selected || null}
+      />
   );
 }
 
