@@ -26,6 +26,11 @@
   width: 10vw;
 }
 
+.board {
+  background-image: url('/svg/board.svg');
+  background-size: cover;
+}
+
 [data-turn=r][data-action=picking] .square[data-side=r]:hover {
   border: 2px solid red;
 }

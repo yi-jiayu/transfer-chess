@@ -43,7 +43,9 @@ function Board({position, turn, selected: [x, y], orientation, handleClick}) {
     board.reverse();
   }
   return (
-      <div data-turn={turn} data-action={x !== null && y !== null ? 'placing' : 'picking'}>
+      <div className="board"
+           data-turn={turn}
+           data-action={x !== null && y !== null ? 'placing' : 'picking'}>
         {board}
       </div>
   );
