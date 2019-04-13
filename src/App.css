@@ -3,28 +3,27 @@
 }
 
 .App-header {
+  align-items: center;
   background-color: #282c34;
-  min-height: 100vh;
+  color: white;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 .square {
-  height: 10vw;
-  width: 10vw;
-  max-width: 50px;
-  max-height: 50px;
-  float: left;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  margin: 2px;
+  background-clip: padding-box;
   background-position: center;
+  background-repeat: no-repeat;
   background-size: cover;
+  border: 2px solid transparent;
+  float: left;
+  height: 10vw;
+  max-height: 50px;
+  max-width: 50px;
+  width: 10vw;
 }
 
 [data-turn=r][data-action=picking] .square.side-r:hover {
