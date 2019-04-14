@@ -8,6 +8,7 @@
     <node-interpreter value="project" />
     <envs>
       <env name="HOST" value="localhost" />
+      <env name="REACT_APP_API_HOST" value="http://localhost:4000" />
     </envs>
     <method v="2" />
   </configuration>

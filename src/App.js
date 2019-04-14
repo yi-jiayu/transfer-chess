@@ -62,6 +62,18 @@ class Game extends Component {
     }
   }
 
+  componentDidMount() {
+    this.api_host = process.env.REACT_APP_API_HOST;
+    this.client = new EventSource(this.api_host);
+    this.client.onmessage = msg => {
+      const data = JSON.parse(msg.data);
+      this.setState({
+        board: data.position,
+        turn: data.turn,
+      });
+    };
+  }
+
   handleClick(i, j) {
     const [x, y] = this.state.selected;
     // if the selected piece is clicked again, unselect it
@@ -81,7 +93,8 @@ class Game extends Component {
         board,
         turn: this.state.turn === 'r' ? 'b' : 'r',
         selected: [null, null],
-      })
+      });
+      this.postMove(x, y, i, j);
     } else
     // if a piece is clicked and it is that side's turn, make it the selected piece
     if (this.state.board[i][j] && this.state.board[i][j].startsWith(this.state.turn)) {
@@ -89,6 +102,17 @@ class Game extends Component {
         selected: [i, j],
       });
     }
+  }
+
+  postMove(x, y, i, j) {
+    fetch(`${this.api_host}/moves`, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify({
+        from: {x, y},
+        to: {x: i, y: j},
+      })
+    }).catch(console.error);
   }
 
   render() {
