@@ -1,4 +1,5 @@
 .App {
+  font-family: 'Press Start 2P', cursive;
   text-align: center;
 }
 
@@ -6,10 +7,21 @@
   align-items: center;
   display: flex;
   flex-direction: column;
-  font-size: calc(10px + 2vmin);
   justify-content: center;
   min-height: 100vh;
 }
+
+.player-label {
+  margin: 0.5em;
+}
+
+@media (max-width: 520px) {
+  .game {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+}
+
 
 .square {
   background-clip: padding-box;
@@ -27,6 +39,10 @@
 .board {
   background-image: url('/svg/board.svg');
   background-size: cover;
+  margin: 2em 0;
+  max-width: 450px;
+  overflow: hidden;
+  width: 100%;
 }
 
 [data-turn=r][data-action=picking] .square[data-side=r]:hover {

@@ -20,7 +20,7 @@ function Square(props) {
       <div
           className="square"
           onClick={props.onClick}
-          data-side={props.piece && props.piece[0]}
+          data-side={props.piece ? props.piece[0] : null}
           data-piece={props.piece || null}
           data-selected={props.selected || null}
       />
@@ -55,7 +55,7 @@ class Game extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      board: props.board,
+      board: STARTING_POSITION,
       turn: 'r',
       selected: [null, null],
       orientation: 'r',
@@ -116,13 +116,22 @@ class Game extends Component {
   }
 
   render() {
-    return <Board
-        position={this.state.board}
-        turn={this.state.turn}
-        selected={this.state.selected}
-        orientation={this.state.orientation}
-        handleClick={(i, j) => this.handleClick(i, j)}
-    />
+    return <div className="nes-container with-title game">
+      <p className="title">Room 1</p>
+      <div className="nes-container is-rounded player-label">
+        <p>Player 1</p>
+      </div>
+      <Board
+          position={this.state.board}
+          turn={this.state.turn}
+          selected={this.state.selected}
+          orientation={this.state.orientation}
+          handleClick={(i, j) => this.handleClick(i, j)}
+      />
+      <div className="nes-container is-rounded player-label">
+        <p>Player 2</p>
+      </div>
+    </div>
   }
 }
 
@@ -131,7 +140,7 @@ class App extends Component {
     return (
         <div className="App">
           <main className="App-content">
-            <Game board={STARTING_POSITION}/>
+            <Game/>
           </main>
         </div>
     );
