@@ -44,7 +44,6 @@ function Board({position, turn, selected: [x, y], orientation, handleClick}) {
   }
   return (
       <div className="board"
-           data-turn={turn}
            data-action={x !== null && y !== null ? 'placing' : 'picking'}>
         {board}
       </div>
@@ -116,20 +115,19 @@ class Game extends Component {
   }
 
   render() {
-    return <div className="nes-container with-title game">
+    return <div className="game nes-container with-title" data-turn={this.state.turn}>
       <p className="title">Room 1</p>
       <div className="nes-container is-rounded player-label">
-        <p>Player 1</p>
+        <p><span className="turn-indicator" data-side="b">(*) </span>Player 2</p>
       </div>
       <Board
           position={this.state.board}
-          turn={this.state.turn}
           selected={this.state.selected}
           orientation={this.state.orientation}
           handleClick={(i, j) => this.handleClick(i, j)}
       />
       <div className="nes-container is-rounded player-label">
-        <p>Player 2</p>
+        <p><span className="turn-indicator" data-side="r">(*) </span>Player 1</p>
       </div>
     </div>
   }

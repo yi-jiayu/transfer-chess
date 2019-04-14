@@ -45,19 +45,31 @@
   width: 100%;
 }
 
-[data-turn=r][data-action=picking] .square[data-side=r]:hover {
+.turn-indicator {
+  display: none;
+}
+
+[data-turn=r] .turn-indicator[data-side=r] {
+  display: inline;
+}
+
+[data-turn=b] .turn-indicator[data-side=b] {
+  display: inline;
+}
+
+[data-turn=r] [data-action=picking] .square[data-side=r]:hover {
   border: 2px solid red;
 }
 
-[data-turn=b][data-action=picking] .square[data-side=b]:hover {
+[data-turn=b] [data-action=picking] .square[data-side=b]:hover {
   border: 2px solid red;
 }
 
-.square[data-side=b][data-selected], .square[data-side=r][data-selected] {
+.square[data-selected] {
   border: 2px solid green;
 }
 
-.square[data-side=b][data-selected]:hover, .square[data-side=r][data-selected]:hover {
+.square[data-selected]:hover {
   border: 2px solid green;
 }
 
