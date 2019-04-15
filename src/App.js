@@ -27,27 +27,52 @@ function Square(props) {
   );
 }
 
-function Board({position, turn, selected: [x, y], orientation, handleClick}) {
-  const board = position.map((row, i) =>
-      <div key={[i, row, i === x]}>
-        {row.map((piece, j) => {
-          return <Square
-              piece={piece}
-              key={[j, piece, i === x && j === y]}
-              onClick={() => handleClick(i, j)}
-              selected={i === x && j === y}
-          />;
-        })}
-      </div>);
-  if (orientation === 'b') {
-    board.reverse();
+class Board extends Component {
+  static renderPosition({position, selected: [x, y], orientation, handleClick}) {
+    const rows = position.map((row, i) =>
+        <div key={[i, row, i === x]}>
+          {row.map((piece, j) => {
+            return <Square
+                piece={piece}
+                key={[j, piece, i === x && j === y]}
+                onClick={() => handleClick(i, j)}
+                selected={i === x && j === y}
+            />;
+          })}
+        </div>);
+    if (orientation === 'b') {
+      rows.reverse();
+    }
+    return rows;
   }
-  return (
-      <div className="board"
-           data-action={x !== null && y !== null ? 'placing' : 'picking'}>
-        {board}
-      </div>
-  );
+
+  static renderDrops(drops) {
+    if (drops.length > 0) {
+      return drops.map((drop, i) => <Square
+          piece={drop}
+          key={[i, drop]}
+      />)
+    }
+    return <Square/>;
+  }
+
+  render() {
+    let {position, selected: [x, y], orientation, drops: {red, black}, handleClick} = this.props;
+    return (
+        <div>
+          <div className="drops">
+            {Board.renderDrops(orientation === 'r' ? black : red)}
+          </div>
+          <div className="board"
+               data-action={x !== null && y !== null ? 'placing' : 'picking'}>
+            {Board.renderPosition({position, selected: [x, y], orientation, handleClick})}
+          </div>
+          <div className="drops">
+            {Board.renderDrops(orientation === 'r' ? red : black)}
+          </div>
+        </div>
+    );
+  }
 }
 
 class Game extends Component {
@@ -55,6 +80,7 @@ class Game extends Component {
     super(props);
     this.state = {
       board: STARTING_POSITION,
+      drops: {red: [], black: []},
       turn: 'r',
       selected: [null, null],
       orientation: 'r',
@@ -89,13 +115,27 @@ class Game extends Component {
     if (x !== null && y !== null) {
       const piece = this.state.board[x][y];
       const board = this.state.board.map(row => row.slice());
+      const eaten = board[i][j];
       board[i][j] = piece;
       board[x][y] = '';
-      this.setState({
+      const newState = {
         board,
         turn: this.state.turn === 'r' ? 'b' : 'r',
         selected: [null, null],
-      });
+      };
+      if (eaten) {
+        const drops = {
+          red: this.state.drops.red.slice(),
+          black: this.state.drops.black.slice(),
+        };
+        if (eaten[0] === 'r') {
+          drops.black.push('b' + eaten.substr(1));
+        } else {
+          drops.red.push('r' + eaten.substr(1));
+        }
+        newState.drops = drops;
+      }
+      this.setState(newState);
       if (this.online) {
         this.postMove(x, y, i, j);
       }
@@ -123,16 +163,23 @@ class Game extends Component {
     return <div className="game nes-container with-title" data-turn={this.state.turn}>
       <p className="title">Room 1</p>
       <div className="nes-container is-rounded player-label">
-        <p><span className="turn-indicator" data-side="b">(*) </span>Player 2</p>
+        <p>
+          <span className="turn-indicator"
+                data-side={this.state.orientation === 'r' ? 'b' : 'r'}
+          >(*) </span>Player 2</p>
       </div>
       <Board
           position={this.state.board}
           selected={this.state.selected}
           orientation={this.state.orientation}
+          drops={this.state.drops}
           handleClick={(i, j) => this.handleClick(i, j)}
       />
       <div className="nes-container is-rounded player-label">
-        <p><span className="turn-indicator" data-side="r">(*) </span>Player 1</p>
+        <p>
+          <span className="turn-indicator"
+                data-side={this.state.orientation}
+          >(*) </span>Player 1</p>
       </div>
     </div>
   }

@@ -39,7 +39,7 @@
 .board {
   background-image: url('/svg/board.svg');
   background-size: cover;
-  margin: 2em 0;
+  margin: 1em 0;
   max-width: 450px;
   overflow: hidden;
   width: 100%;
@@ -47,6 +47,13 @@
 
 .turn-indicator {
   display: none;
+}
+
+.drops {
+  overflow: hidden;
+  margin: 1em 0;
+  width: 100%;
+  max-width: 450px;
 }
 
 [data-turn=r] .turn-indicator[data-side=r] {
