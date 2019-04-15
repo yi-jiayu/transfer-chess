@@ -14,6 +14,9 @@ const STARTING_POSITION = [
   ['rR', 'rH', 'rE', 'rA', 'rG', 'rA', 'rE', 'rH', 'rR'],
 ];
 
+const RED = 'r';
+const BLACK = 'b';
+
 
 function Square(props) {
   return (
@@ -28,7 +31,8 @@ function Square(props) {
 }
 
 class Board extends Component {
-  static renderPosition({position, selected: [x, y], orientation, handleClick}) {
+  renderPosition() {
+    const {position, selected: [x, y], orientation, handleClick} = this.props;
     const rows = position.map((row, i) =>
         <div key={[i, row, i === x]}>
           {row.map((piece, j) => {
@@ -40,35 +44,40 @@ class Board extends Component {
             />;
           })}
         </div>);
-    if (orientation === 'b') {
+    if (orientation === BLACK) {
       rows.reverse();
     }
-    return rows;
+    return (
+        <div
+            className="board"
+            data-action={x !== null && y !== null ? 'placing' : 'picking'}>
+          {rows}
+        </div>
+    );
   }
 
-  static renderDrops(drops) {
+  renderDrops(side) {
+    const drops = this.props.drops[side];
     if (drops.length > 0) {
-      return drops.map((drop, i) => <Square
-          piece={drop}
-          key={[i, drop]}
-      />)
+      return drops.map((drop, i) =>
+          <Square
+              piece={drop}
+              key={[i, drop]}
+          />
+      )
     }
     return <Square/>;
   }
 
   render() {
-    let {position, selected: [x, y], orientation, drops: {red, black}, handleClick} = this.props;
     return (
         <div>
           <div className="drops">
-            {Board.renderDrops(orientation === 'r' ? black : red)}
+            {this.renderDrops(this.props.orientation === RED ? BLACK : RED)}
           </div>
-          <div className="board"
-               data-action={x !== null && y !== null ? 'placing' : 'picking'}>
-            {Board.renderPosition({position, selected: [x, y], orientation, handleClick})}
-          </div>
+          {this.renderPosition()}
           <div className="drops">
-            {Board.renderDrops(orientation === 'r' ? red : black)}
+            {this.renderDrops(this.props.orientation)}
           </div>
         </div>
     );
@@ -80,10 +89,10 @@ class Game extends Component {
     super(props);
     this.state = {
       board: STARTING_POSITION,
-      drops: {red: [], black: []},
-      turn: 'r',
+      drops: {r: [], b: []},
+      turn: RED,
       selected: [null, null],
-      orientation: 'r',
+      orientation: RED,
     };
     this.online = props.online || false;
   }
@@ -120,18 +129,18 @@ class Game extends Component {
       board[x][y] = '';
       const newState = {
         board,
-        turn: this.state.turn === 'r' ? 'b' : 'r',
+        turn: this.state.turn === RED ? BLACK : RED,
         selected: [null, null],
       };
       if (eaten) {
         const drops = {
-          red: this.state.drops.red.slice(),
-          black: this.state.drops.black.slice(),
+          r: this.state.drops.r.slice(),
+          b: this.state.drops.b.slice(),
         };
-        if (eaten[0] === 'r') {
-          drops.black.push('b' + eaten.substr(1));
+        if (eaten[0] === RED) {
+          drops.b.push(BLACK + eaten.substr(1));
         } else {
-          drops.red.push('r' + eaten.substr(1));
+          drops.r.push(RED + eaten.substr(1));
         }
         newState.drops = drops;
       }
@@ -165,7 +174,7 @@ class Game extends Component {
       <div className="nes-container is-rounded player-label">
         <p>
           <span className="turn-indicator"
-                data-side={this.state.orientation === 'r' ? 'b' : 'r'}
+                data-side={this.state.orientation === RED ? BLACK : RED}
           >(*) </span>Player 2</p>
       </div>
       <Board
