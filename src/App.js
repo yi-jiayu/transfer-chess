@@ -174,8 +174,7 @@ class Game extends Component {
   }
 
   render() {
-    return <div className="game nes-container with-title" data-turn={this.state.turn}>
-      <p className="title">Room 1</p>
+    return <div className="game" data-turn={this.state.turn}>
       <div className="nes-container is-rounded player-label">
         <p>
           <span className="turn-indicator"
@@ -205,7 +204,13 @@ class App extends Component {
     return (
         <div className="App">
           <main className="App-content">
-            <Game online={process.env.REACT_APP_ONLINE_MODE}/>
+            <div className="game-container nes-container with-title">
+              <p className="title">Room 1</p>
+              <div className="boards">
+                <Game online={process.env.REACT_APP_ONLINE_MODE}/>
+                <Game online={process.env.REACT_APP_ONLINE_MODE}/>
+              </div>
+            </div>
           </main>
         </div>
     );
