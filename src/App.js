@@ -17,6 +17,8 @@ const STARTING_POSITION = [
 const RED = 'r';
 const BLACK = 'b';
 
+const ON_BOARD = 1;
+const FROM_DROPS = 2;
 
 function Square(props) {
   return (
@@ -32,15 +34,15 @@ function Square(props) {
 
 class Board extends Component {
   renderPosition() {
-    const {position, selected: [x, y], orientation, handleClick} = this.props;
+    const {turn, position, selected: [location, rank, file], orientation, handleClick} = this.props;
     const rows = position.map((row, i) =>
-        <div key={[i, row, i === x]}>
+        <div key={[i, row, location === ON_BOARD && i === rank]}>
           {row.map((piece, j) => {
             return <Square
                 piece={piece}
-                key={[j, piece, i === x && j === y]}
-                onClick={() => handleClick(i, j)}
-                selected={i === x && j === y}
+                key={[j, piece, location === ON_BOARD && i === rank && j === file]}
+                onClick={location || piece.startsWith(turn) ? () => handleClick(ON_BOARD, i, j) : null}
+                selected={location === ON_BOARD && i === rank && j === file}
             />;
           })}
         </div>);
@@ -48,9 +50,7 @@ class Board extends Component {
       rows.reverse();
     }
     return (
-        <div
-            className="board"
-            data-action={x !== null && y !== null ? 'placing' : 'picking'}>
+        <div className="board">
           {rows}
         </div>
     );
@@ -58,11 +58,14 @@ class Board extends Component {
 
   renderDrops(side) {
     const drops = this.props.drops[side];
+    const [location, colour, index] = this.props.selected;
     if (drops.length > 0) {
       return drops.map((drop, i) =>
           <Square
               piece={drop}
-              key={[i, drop]}
+              onClick={side === this.props.turn ? () => this.props.handleClick(FROM_DROPS, side, i) : null}
+              key={[i, drop, (location === FROM_DROPS && colour === side && index === i)]}
+              selected={location === FROM_DROPS && colour === side && index === i}
           />
       )
     }
@@ -71,7 +74,7 @@ class Board extends Component {
 
   render() {
     return (
-        <div>
+        <div data-action={this.props.selected[0] ? 'placing' : 'picking'}>
           <div className="drops">
             {this.renderDrops(this.props.orientation === RED ? BLACK : RED)}
           </div>
@@ -91,7 +94,7 @@ class Game extends Component {
       board: STARTING_POSITION,
       drops: {r: [], b: []},
       turn: RED,
-      selected: [null, null],
+      selected: [null, null, null],
       orientation: RED,
     };
     this.online = props.online || false;
@@ -111,48 +114,50 @@ class Game extends Component {
     }
   }
 
-  handleClick(i, j) {
-    const [x, y] = this.state.selected;
+  handleClick(l, i, j) {
+    const [location, x, y] = this.state.selected;
     // if the selected piece is clicked again, unselect it
-    if (i === x && j === y) {
+    if (l === location && i === x && j === y) {
       this.setState({
-        selected: [null, null],
+        selected: [null, null, null],
       });
     } else
-    // if a piece is currently selected, move it to the clicked position and unselect it
+    // if a piece is currently selected and the clicked position is on the board,
+    // move it to the clicked position and unselect it
     // and update whose turn it is
-    if (x !== null && y !== null) {
-      const piece = this.state.board[x][y];
+    if (location !== null && l === ON_BOARD) {
+      const piece = location === ON_BOARD ? this.state.board[x][y] : this.state.drops[x][y];
       const board = this.state.board.map(row => row.slice());
+      const drops = {
+        r: this.state.drops.r.slice(),
+        b: this.state.drops.b.slice(),
+      };
       const eaten = board[i][j];
       board[i][j] = piece;
-      board[x][y] = '';
-      const newState = {
-        board,
-        turn: this.state.turn === RED ? BLACK : RED,
-        selected: [null, null],
-      };
+      if (location === ON_BOARD) {
+        board[x][y] = '';
+      } else {
+        drops[x].splice(y, 1);
+      }
       if (eaten) {
-        const drops = {
-          r: this.state.drops.r.slice(),
-          b: this.state.drops.b.slice(),
-        };
         if (eaten[0] === RED) {
           drops.b.push(BLACK + eaten.substr(1));
         } else {
           drops.r.push(RED + eaten.substr(1));
         }
-        newState.drops = drops;
       }
-      this.setState(newState);
+      this.setState({
+        board,
+        drops,
+        turn: this.state.turn === RED ? BLACK : RED,
+        selected: [null, null, null],
+      });
       if (this.online) {
         this.postMove(x, y, i, j);
       }
-    } else
-    // if a piece is clicked and it is that side's turn, make it the selected piece
-    if (this.state.board[i][j] && this.state.board[i][j].startsWith(this.state.turn)) {
+    } else {
       this.setState({
-        selected: [i, j],
+        selected: [l, i, j],
       });
     }
   }
@@ -178,11 +183,12 @@ class Game extends Component {
           >(*) </span>Player 2</p>
       </div>
       <Board
+          turn={this.state.turn}
           position={this.state.board}
           selected={this.state.selected}
           orientation={this.state.orientation}
           drops={this.state.drops}
-          handleClick={(i, j) => this.handleClick(i, j)}
+          handleClick={(l, i, j) => this.handleClick(l, i, j)}
       />
       <div className="nes-container is-rounded player-label">
         <p>
