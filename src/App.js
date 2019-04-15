@@ -95,7 +95,7 @@ class Game extends Component {
       drops: {r: [], b: []},
       turn: RED,
       selected: [null, null, null],
-      orientation: RED,
+      orientation: this.props.orientation || RED,
     };
     this.online = props.online || false;
   }
@@ -208,7 +208,7 @@ class App extends Component {
               <p className="title">Room 1</p>
               <div className="boards">
                 <Game online={process.env.REACT_APP_ONLINE_MODE}/>
-                <Game online={process.env.REACT_APP_ONLINE_MODE}/>
+                <Game online={process.env.REACT_APP_ONLINE_MODE} orientation={BLACK}/>
               </div>
             </div>
           </main>
