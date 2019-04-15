@@ -58,19 +58,22 @@ class Game extends Component {
       turn: 'r',
       selected: [null, null],
       orientation: 'r',
-    }
+    };
+    this.online = props.online || false;
   }
 
   componentDidMount() {
-    this.api_host = process.env.REACT_APP_API_HOST;
-    this.client = new EventSource(this.api_host);
-    this.client.onmessage = msg => {
-      const data = JSON.parse(msg.data);
-      this.setState({
-        board: data.position,
-        turn: data.turn,
-      });
-    };
+    if (this.online) {
+      this.api_host = process.env.REACT_APP_API_HOST;
+      this.client = new EventSource(this.api_host);
+      this.client.onmessage = msg => {
+        const data = JSON.parse(msg.data);
+        this.setState({
+          board: data.position,
+          turn: data.turn,
+        });
+      };
+    }
   }
 
   handleClick(i, j) {
@@ -93,7 +96,9 @@ class Game extends Component {
         turn: this.state.turn === 'r' ? 'b' : 'r',
         selected: [null, null],
       });
-      this.postMove(x, y, i, j);
+      if (this.online) {
+        this.postMove(x, y, i, j);
+      }
     } else
     // if a piece is clicked and it is that side's turn, make it the selected piece
     if (this.state.board[i][j] && this.state.board[i][j].startsWith(this.state.turn)) {
@@ -138,7 +143,7 @@ class App extends Component {
     return (
         <div className="App">
           <main className="App-content">
-            <Game/>
+            <Game online={process.env.REACT_APP_ONLINE_MODE}/>
           </main>
         </div>
     );
