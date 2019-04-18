@@ -1,5 +1,9 @@
+:root {
+  --max-board-width: 486px;
+  --max-piece-size: 50px;
+}
+
 .App {
-  font-family: 'Press Start 2P', cursive;
   text-align: center;
 }
 
@@ -11,41 +15,6 @@
   min-height: 100vh;
 }
 
-.player-label {
-  padding: 0.25em;
-}
-
-.nes-container.player-label {
-  padding: 0.5em;
-}
-
-.game-container {
-  margin: 1em 0;
-}
-
-@media (min-width: 1123px) {
-  .game {
-    margin: 0 1em;
-  }
-
-  .boards {
-    display: flex;
-  }
-}
-
-@media (max-width: 1122px) {
-  .game:first-of-type {
-    margin-bottom: 1em;
-  }
-}
-
-@media (max-width: 520px) {
-  .game-container {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-  }
-}
-
 .square {
   background-clip: padding-box;
   background-position: center;
@@ -54,8 +23,8 @@
   border: 2px solid transparent;
   float: left;
   height: 10vw;
-  max-height: 50px;
-  max-width: 50px;
+  max-height: var(--max-piece-size);
+  max-width: var(--max-piece-size);
   width: 10vw;
 }
 
@@ -63,20 +32,20 @@
   background-image: url('/svg/board.svg');
   background-size: cover;
   margin: 1em 0;
-  max-width: 450px;
+  max-width: var(--max-board-width);
+  overflow: hidden;
+  width: 100%;
+}
+
+.drops {
+  margin: 1em 0;
+  max-width: var(--max-board-width);
   overflow: hidden;
   width: 100%;
 }
 
 .turn-indicator {
   display: none;
-}
-
-.drops {
-  overflow: hidden;
-  margin: 1em 0;
-  width: 100%;
-  max-width: 450px;
 }
 
 [data-turn=r] .turn-indicator[data-side=r] {

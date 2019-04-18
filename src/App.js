@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+
 import './App.css';
 
 const STARTING_POSITION = [
@@ -174,8 +175,8 @@ class Game extends Component {
   }
 
   render() {
-    return <div className="game" data-turn={this.state.turn}>
-      <div className="nes-container is-rounded player-label">
+    return <div data-turn={this.state.turn}>
+      <div>
         <p>
           <span className="turn-indicator"
                 data-side={this.state.orientation === RED ? BLACK : RED}
@@ -189,7 +190,7 @@ class Game extends Component {
           drops={this.state.drops}
           handleClick={(l, i, j) => this.handleClick(l, i, j)}
       />
-      <div className="nes-container is-rounded player-label">
+      <div>
         <p>
           <span className="turn-indicator"
                 data-side={this.state.orientation}
@@ -204,13 +205,7 @@ class App extends Component {
     return (
         <div className="App">
           <main className="App-content">
-            <div className="game-container nes-container with-title">
-              <p className="title">Room 1</p>
-              <div className="boards">
-                <Game online={process.env.REACT_APP_ONLINE_MODE}/>
-                <Game online={process.env.REACT_APP_ONLINE_MODE} orientation={BLACK}/>
-              </div>
-            </div>
+            <Game online={process.env.REACT_APP_ONLINE_MODE}/>
           </main>
         </div>
     );
