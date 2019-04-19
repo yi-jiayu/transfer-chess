@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import { fromJS, List } from 'immutable';
 
 import './App.css';
 
-const STARTING_POSITION = [
+const STARTING_POSITION = fromJS([
   ['bR', 'bH', 'bE', 'bA', 'bG', 'bA', 'bE', 'bH', 'bR'],
   ['', '', '', '', '', '', '', '', ''],
   ['', 'bC', '', '', '', '', '', 'bC', ''],
@@ -13,7 +14,7 @@ const STARTING_POSITION = [
   ['', 'rC', '', '', '', '', '', 'rC', ''],
   ['', '', '', '', '', '', '', '', ''],
   ['rR', 'rH', 'rE', 'rA', 'rG', 'rA', 'rE', 'rH', 'rR'],
-];
+]);
 
 const RED = 'r';
 const BLACK = 'b';
@@ -36,24 +37,26 @@ function Square({piece, selected, onClick}) {
 class Board extends Component {
   renderPosition() {
     const {turn, position, selected: [location, rank, file], orientation, previous, handleClick} = this.props;
-    const rows = position.map((pieces, i) => ({
-      key: [i, pieces, false],
+    let rows = position.map((pieces, i) => ({
+      key: List([i, pieces, false]),
       pieces: pieces.map((piece, j) => ({piece, key: [j, piece, false], selected: false}))
     }));
     if (location === ON_BOARD) {
-      rows[rank].key.push(file);
-      rows[rank].pieces[file].selected = true;
-      rows[rank].pieces[file].key[2] = true;
+      rows = rows.withMutations(rows =>
+          rows.updateIn([rank, 'key'], k => k.push(file))
+              .setIn([rank, 'pieces', file, 'selected'], true)
+              .setIn([rank, 'pieces', file, 'key', 2], true));
     }
     if (previous.length > 0) {
       for (const [rank, file] of previous) {
-        rows[rank].key.push(file);
-        rows[rank].pieces[file].selected = true;
-        rows[rank].pieces[file].key[2] = true;
+        rows = rows.withMutations(rows =>
+            rows.updateIn([rank, 'key'], k => k.push(file))
+                .setIn([rank, 'pieces', file, 'selected'], true)
+                .setIn([rank, 'pieces', file, 'key', 2], true));
       }
     }
     const board = rows.map(({key, pieces}, i) =>
-        <div key={key}>
+        <div key={key.toJS()}>
           {pieces.map(({piece, key, selected}, j) => {
             return <Square
                 piece={piece}
@@ -101,7 +104,7 @@ class Board extends Component {
   }
 }
 
-class Game extends Component {
+class Table extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -141,17 +144,17 @@ class Game extends Component {
     // move it to the clicked position and unselect it
     // and update whose turn it is
     if (location !== null && l === ON_BOARD) {
-      const piece = location === ON_BOARD ? this.state.board[x][y] : this.state.drops[x][y];
-      const board = this.state.board.map(row => row.slice());
+      const piece = location === ON_BOARD ? this.state.board.getIn([x, y]) : this.state.drops[x][y];
+      let board = this.state.board;
       const drops = {
         r: this.state.drops.r.slice(),
         b: this.state.drops.b.slice(),
       };
       const previous = [[i, j]];
-      const eaten = board[i][j];
-      board[i][j] = piece;
+      const eaten = board.getIn([i, j]);
+      board = board.setIn([i, j], piece);
       if (location === ON_BOARD) {
-        board[x][y] = '';
+        board = board.setIn([x, y], '');
         previous.push([x, y]);
       } else {
         drops[x].splice(y, 1);
@@ -223,7 +226,7 @@ class App extends Component {
     return (
         <div className="App">
           <main className="App-content">
-            <Game online={process.env.REACT_APP_ONLINE_MODE}/>
+            <Table online={process.env.REACT_APP_ONLINE_MODE}/>
           </main>
         </div>
     );
