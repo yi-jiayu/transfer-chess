@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { fromJS, List } from 'immutable';
+import { fromJS, List, Map } from 'immutable';
 
 import './App.css';
 
@@ -38,42 +38,39 @@ class Board extends Component {
   renderPosition() {
     const {turn, position, selected: [location, rank, file], orientation, previous, handleClick} = this.props;
     let rows = position.map((pieces, i) => ({
-      key: List([i, pieces, false]),
+      key: Map({
+        index: i,
+        pieces,
+        highlighted: List(),
+      }),
       pieces: pieces.map((piece, j) => ({piece, key: [j, piece, false], selected: false}))
     }));
     if (location === ON_BOARD) {
       rows = rows.withMutations(rows =>
-          rows.updateIn([rank, 'key'], k => k.push(file))
+          rows.updateIn([rank, 'key', 'highlighted'], k => k.push(file))
               .setIn([rank, 'pieces', file, 'selected'], true)
               .setIn([rank, 'pieces', file, 'key', 2], true));
     }
-    if (previous.length > 0) {
-      for (const [rank, file] of previous) {
-        rows = rows.withMutations(rows =>
-            rows.updateIn([rank, 'key'], k => k.push(file))
-                .setIn([rank, 'pieces', file, 'selected'], true)
-                .setIn([rank, 'pieces', file, 'key', 2], true));
-      }
+    for (const [rank, file] of previous) {
+      rows = rows.withMutations(rows =>
+          rows.updateIn([rank, 'key', 'highlighted'], k => k.push(file))
+              .setIn([rank, 'pieces', file, 'selected'], true)
+              .setIn([rank, 'pieces', file, 'key', 2], true));
     }
     const board = rows.map(({key, pieces}, i) =>
-        <div key={key.toJS()}>
-          {pieces.map(({piece, key, selected}, j) => {
-            return <Square
-                piece={piece}
-                key={key}
-                onClick={location || piece.startsWith(turn) ? () => handleClick(ON_BOARD, i, j) : null}
-                selected={selected}
-            />;
-          })}
+        <div key={key.valueSeq().toJS()}>
+          {pieces.map(({piece, key, selected}, j) =>
+              <Square
+                  piece={piece}
+                  key={key}
+                  onClick={location || piece.startsWith(turn) ? () => handleClick(ON_BOARD, i, j) : null}
+                  selected={selected}
+              />)}
         </div>);
     if (orientation === BLACK) {
       board.reverse();
     }
-    return (
-        <div className="board">
-          {board}
-        </div>
-    );
+    return board;
   }
 
   renderDrops(side) {
@@ -95,7 +92,9 @@ class Board extends Component {
           <div className="drops">
             {this.renderDrops(this.props.orientation === RED ? BLACK : RED)}
           </div>
-          {this.renderPosition()}
+          <div className="board">
+            {this.renderPosition()}
+          </div>
           <div className="drops">
             {this.renderDrops(this.props.orientation)}
           </div>
