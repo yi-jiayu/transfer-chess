@@ -60,17 +60,14 @@ class Board extends Component {
   renderDrops(side) {
     const drops = this.props.drops[side];
     const [location, colour, index] = this.props.selected;
-    if (drops.length > 0) {
-      return drops.map((drop, i) =>
-          <Square
-              piece={drop}
-              onClick={side === this.props.turn ? () => this.props.handleClick(FROM_DROPS, side, i) : null}
-              key={[i, drop, (location === FROM_DROPS && colour === side && index === i)]}
-              selected={location === FROM_DROPS && colour === side && index === i}
-          />
-      )
-    }
-    return <Square/>;
+    return drops.map((drop, i) =>
+        <Square
+            piece={drop}
+            onClick={side === this.props.turn ? () => this.props.handleClick(FROM_DROPS, side, i) : null}
+            key={[i, drop, (location === FROM_DROPS && colour === side && index === i)]}
+            selected={location === FROM_DROPS && colour === side && index === i}
+        />
+    )
   }
 
   render() {

@@ -1,5 +1,6 @@
 :root {
   --max-board-width: 486px;
+  --piece-border-radius: 2px;
   --max-piece-size: 50px;
 }
 
@@ -20,7 +21,7 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  border: 2px solid transparent;
+  border: var(--piece-border-radius) solid transparent;
   float: left;
   height: 10vw;
   max-height: var(--max-piece-size);
@@ -38,6 +39,7 @@
 }
 
 .drops {
+  height: calc(var(--max-piece-size) + 2 * var(--piece-border-radius));
   margin: 1em 0;
   max-width: var(--max-board-width);
   overflow: hidden;
@@ -57,19 +59,19 @@
 }
 
 [data-turn=r] [data-action=picking] .square[data-side=r]:hover {
-  border: 2px solid red;
+  border: var(--piece-border-radius) solid red;
 }
 
 [data-turn=b] [data-action=picking] .square[data-side=b]:hover {
-  border: 2px solid red;
+  border: var(--piece-border-radius) solid red;
 }
 
 .square[data-selected] {
-  border: 2px solid green;
+  border: var(--piece-border-radius) solid green;
 }
 
 .square[data-selected]:hover {
-  border: 2px solid green;
+  border: var(--piece-border-radius) solid green;
 }
 
 [data-piece=bA] {
