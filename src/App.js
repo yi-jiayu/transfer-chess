@@ -35,15 +35,22 @@ function Square({piece, selected, onClick}) {
 
 class Board extends Component {
   renderPosition() {
-    const {turn, position, selected: [location, rank, file], orientation, handleClick} = this.props;
+    const {turn, position, selected: [location, rank, file], orientation, previous, handleClick} = this.props;
     const rows = position.map((pieces, i) => ({
-      key: [i, pieces],
-      pieces: pieces.map((piece, j) => ({piece, key: [j, piece], selected: false}))
+      key: [i, pieces, false],
+      pieces: pieces.map((piece, j) => ({piece, key: [j, piece, false], selected: false}))
     }));
     if (location === ON_BOARD) {
-      rows[rank].key.push(true);
+      rows[rank].key.push(file);
       rows[rank].pieces[file].selected = true;
-      rows[rank].pieces[file].key.push(true);
+      rows[rank].pieces[file].key[2] = true;
+    }
+    if (previous.length > 0) {
+      for (const [rank, file] of previous) {
+        rows[rank].key.push(file);
+        rows[rank].pieces[file].selected = true;
+        rows[rank].pieces[file].key[2] = true;
+      }
     }
     const board = rows.map(({key, pieces}, i) =>
         <div key={key}>
@@ -103,6 +110,7 @@ class Game extends Component {
       turn: RED,
       selected: [null, null, null],
       orientation: this.props.orientation || RED,
+      previous: [],
     };
     this.online = props.online || false;
   }
@@ -139,10 +147,12 @@ class Game extends Component {
         r: this.state.drops.r.slice(),
         b: this.state.drops.b.slice(),
       };
+      const previous = [[i, j]];
       const eaten = board[i][j];
       board[i][j] = piece;
       if (location === ON_BOARD) {
         board[x][y] = '';
+        previous.push([x, y]);
       } else {
         drops[x].splice(y, 1);
       }
@@ -158,6 +168,7 @@ class Game extends Component {
         drops,
         turn: this.state.turn === RED ? BLACK : RED,
         selected: [null, null, null],
+        previous,
       });
       if (this.online) {
         this.postMove(x, y, i, j);
@@ -194,6 +205,7 @@ class Game extends Component {
           selected={this.state.selected}
           orientation={this.state.orientation}
           drops={this.state.drops}
+          previous={this.state.previous}
           handleClick={(l, i, j) => this.handleClick(l, i, j)}
       />
       <div>
