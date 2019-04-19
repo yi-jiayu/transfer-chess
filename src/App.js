@@ -21,14 +21,14 @@ const BLACK = 'b';
 const ON_BOARD = 1;
 const FROM_DROPS = 2;
 
-function Square(props) {
+function Square({piece, selected, onClick}) {
   return (
       <div
           className="square"
-          onClick={props.onClick}
-          data-side={props.piece ? props.piece[0] : null}
-          data-piece={props.piece || null}
-          data-selected={props.selected || null}
+          data-side={piece ? piece[0] : null}
+          data-piece={piece || null}
+          data-selected={selected || null}
+          onClick={onClick}
       />
   );
 }
@@ -36,23 +36,32 @@ function Square(props) {
 class Board extends Component {
   renderPosition() {
     const {turn, position, selected: [location, rank, file], orientation, handleClick} = this.props;
-    const rows = position.map((row, i) =>
-        <div key={[i, row, location === ON_BOARD && i === rank]}>
-          {row.map((piece, j) => {
+    const rows = position.map((pieces, i) => ({
+      key: [i, pieces],
+      pieces: pieces.map((piece, j) => ({piece, key: [j, piece], selected: false}))
+    }));
+    if (location === ON_BOARD) {
+      rows[rank].key.push(true);
+      rows[rank].pieces[file].selected = true;
+      rows[rank].pieces[file].key.push(true);
+    }
+    const board = rows.map(({key, pieces}, i) =>
+        <div key={key}>
+          {pieces.map(({piece, key, selected}, j) => {
             return <Square
                 piece={piece}
-                key={[j, piece, location === ON_BOARD && i === rank && j === file]}
+                key={key}
                 onClick={location || piece.startsWith(turn) ? () => handleClick(ON_BOARD, i, j) : null}
-                selected={location === ON_BOARD && i === rank && j === file}
+                selected={selected}
             />;
           })}
         </div>);
     if (orientation === BLACK) {
-      rows.reverse();
+      board.reverse();
     }
     return (
         <div className="board">
-          {rows}
+          {board}
         </div>
     );
   }
