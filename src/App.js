@@ -57,7 +57,7 @@ class Board extends Component {
               .setIn([rank, 'pieces', file, 'selected'], true)
               .setIn([rank, 'pieces', file, 'key', 2], true));
     }
-    const board = rows.map(({key, pieces}, i) =>
+    let board = rows.map(({key, pieces}, i) =>
         <div key={key.valueSeq().toJS()}>
           {pieces.map(({piece, key, selected}, j) =>
               <Square
@@ -68,13 +68,13 @@ class Board extends Component {
               />)}
         </div>);
     if (orientation === BLACK) {
-      board.reverse();
+      board = board.reverse();
     }
     return board;
   }
 
   renderDrops(side) {
-    const drops = this.props.drops[side];
+    const drops = this.props.drops.get(side);
     const [location, colour, index] = this.props.selected;
     return drops.map((drop, i) =>
         <Square
@@ -103,52 +103,60 @@ class Board extends Component {
   }
 }
 
-class Table extends Component {
+function Table({turn, orientation, position, drops, selected, previous, handleClick}) {
+  return <div data-turn={turn}>
+    <div>
+      <span className="turn-indicator"
+            data-side={orientation === RED ? BLACK : RED}>(*) </span>Player 2
+    </div>
+    <Board
+        turn={turn}
+        position={position}
+        selected={selected}
+        orientation={orientation}
+        drops={drops}
+        previous={previous}
+        handleClick={(l, i, j) => handleClick(l, i, j)}
+    />
+    <div>
+      <span className="turn-indicator"
+            data-side={orientation}>(*) </span>Player 1
+    </div>
+  </div>
+
+}
+
+class Game extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      board: STARTING_POSITION,
-      drops: {r: [], b: []},
-      turn: RED,
-      selected: [null, null, null],
-      orientation: this.props.orientation || RED,
-      previous: [],
+      table0: Map({
+        position: STARTING_POSITION,
+        drops: fromJS({r: [], b: []}),
+        turn: RED,
+        selected: [null, null, null],
+        orientation: RED,
+        previous: [],
+      }),
     };
-    this.online = props.online || false;
-  }
-
-  componentDidMount() {
-    if (this.online) {
-      this.api_host = process.env.REACT_APP_API_HOST;
-      this.client = new EventSource(this.api_host);
-      this.client.onmessage = msg => {
-        const data = JSON.parse(msg.data);
-        this.setState({
-          board: data.position,
-          turn: data.turn,
-        });
-      };
-    }
   }
 
   handleClick(l, i, j) {
-    const [location, x, y] = this.state.selected;
+    let table0 = this.state.table0;
+    const [location, x, y] = table0.get('selected');
     // if the selected piece is clicked again, unselect it
     if (l === location && i === x && j === y) {
       this.setState({
-        selected: [null, null, null],
+        table0: table0.set('selected', [null, null, null]),
       });
     } else
     // if a piece is currently selected and the clicked position is on the board,
     // move it to the clicked position and unselect it
     // and update whose turn it is
     if (location !== null && l === ON_BOARD) {
-      const piece = location === ON_BOARD ? this.state.board.getIn([x, y]) : this.state.drops[x][y];
-      let board = this.state.board;
-      const drops = {
-        r: this.state.drops.r.slice(),
-        b: this.state.drops.b.slice(),
-      };
+      const piece = location === ON_BOARD ? table0.getIn(['position', x, y]) : table0.getIn(['drops', x, y]);
+      let board = table0.get('position');
+      let drops = table0.get('drops');
       const previous = [[i, j]];
       const eaten = board.getIn([i, j]);
       board = board.setIn([i, j], piece);
@@ -156,67 +164,46 @@ class Table extends Component {
         board = board.setIn([x, y], '');
         previous.push([x, y]);
       } else {
-        drops[x].splice(y, 1);
+        drops = drops.deleteIn([x, y])
       }
       if (eaten) {
         if (eaten[0] === RED) {
-          drops.b.push(BLACK + eaten.substr(1));
+          drops = drops.update(BLACK, d => d.push(BLACK + eaten.substr(1)));
         } else {
-          drops.r.push(RED + eaten.substr(1));
+          drops = drops.update(RED, d => d.push(RED + eaten.substr(1)));
         }
       }
       this.setState({
-        board,
-        drops,
-        turn: this.state.turn === RED ? BLACK : RED,
-        selected: [null, null, null],
-        previous,
+        table0: table0.merge(Map({
+          position: board,
+          drops,
+          turn: table0.get('turn') === RED ? BLACK : RED,
+          selected: [null, null, null],
+          previous,
+        })),
       });
-      if (this.online) {
-        this.postMove(x, y, i, j);
-      }
     } else {
       this.setState({
-        selected: [l, i, j],
+        table0: table0.set('selected', [l, i, j]),
       });
     }
   }
 
-  postMove(x, y, i, j) {
-    fetch(`${this.api_host}/moves`, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: JSON.stringify({
-        from: {x, y},
-        to: {x: i, y: j},
-      })
-    }).catch(console.error);
-  }
 
   render() {
-    return <div data-turn={this.state.turn}>
-      <div>
-        <p>
-          <span className="turn-indicator"
-                data-side={this.state.orientation === RED ? BLACK : RED}
-          >(*) </span>Player 2</p>
-      </div>
-      <Board
-          turn={this.state.turn}
-          position={this.state.board}
-          selected={this.state.selected}
-          orientation={this.state.orientation}
-          drops={this.state.drops}
-          previous={this.state.previous}
-          handleClick={(l, i, j) => this.handleClick(l, i, j)}
-      />
-      <div>
-        <p>
-          <span className="turn-indicator"
-                data-side={this.state.orientation}
-          >(*) </span>Player 1</p>
-      </div>
-    </div>
+    return (
+        <div>
+          <Table
+              turn={this.state.table0.get('turn')}
+              orientation={this.state.table0.get('orientation')}
+              position={this.state.table0.get('position')}
+              drops={this.state.table0.get('drops')}
+              selected={this.state.table0.get('selected')}
+              previous={this.state.table0.get('previous')}
+              handleClick={(l, i, j) => this.handleClick(l, i, j)}
+          />
+        </div>
+    );
   }
 }
 
@@ -225,7 +212,7 @@ class App extends Component {
     return (
         <div className="App">
           <main className="App-content">
-            <Table online={process.env.REACT_APP_ONLINE_MODE}/>
+            <Game/>
           </main>
         </div>
     );
