@@ -158,7 +158,6 @@ class Game extends Component {
       this.client = new EventSource(this.api_host);
       this.client.onmessage = msg => {
         const data = JSON.parse(msg.data);
-        console.log(data);
         let tables = this.state.tables;
         tables = tables.withMutations(t =>
             t.setIn([0, 'position'], fromJS(data[0].position))
