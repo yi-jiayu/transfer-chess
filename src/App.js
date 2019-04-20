@@ -130,33 +130,35 @@ class Game extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      table0: Map({
-        position: STARTING_POSITION,
-        drops: fromJS({r: [], b: []}),
-        turn: RED,
-        selected: [null, null, null],
-        orientation: RED,
-        previous: [],
-      }),
+      tables: List([
+        Map({
+          position: STARTING_POSITION,
+          drops: fromJS({r: [], b: []}),
+          turn: RED,
+          selected: [null, null, null],
+          orientation: RED,
+          previous: [],
+        }),
+      ]),
     };
   }
 
-  handleClick(l, i, j) {
-    let table0 = this.state.table0;
-    const [location, x, y] = table0.get('selected');
+  handleClick(t, l, i, j) {
+    let table = this.state.tables.get(t);
+    const [location, x, y] = table.get('selected');
     // if the selected piece is clicked again, unselect it
     if (l === location && i === x && j === y) {
       this.setState({
-        table0: table0.set('selected', [null, null, null]),
+        tables: this.state.tables.setIn([t, 'selected'], [null, null, null]),
       });
     } else
     // if a piece is currently selected and the clicked position is on the board,
     // move it to the clicked position and unselect it
     // and update whose turn it is
     if (location !== null && l === ON_BOARD) {
-      const piece = location === ON_BOARD ? table0.getIn(['position', x, y]) : table0.getIn(['drops', x, y]);
-      let board = table0.get('position');
-      let drops = table0.get('drops');
+      const piece = location === ON_BOARD ? table.getIn(['position', x, y]) : table.getIn(['drops', x, y]);
+      let board = table.get('position');
+      let drops = table.get('drops');
       const previous = [[i, j]];
       const eaten = board.getIn([i, j]);
       board = board.setIn([i, j], piece);
@@ -174,17 +176,17 @@ class Game extends Component {
         }
       }
       this.setState({
-        table0: table0.merge(Map({
+        tables: this.state.tables.update(t, tb => tb.merge(Map({
           position: board,
           drops,
-          turn: table0.get('turn') === RED ? BLACK : RED,
+          turn: table.get('turn') === RED ? BLACK : RED,
           selected: [null, null, null],
           previous,
-        })),
+        }))),
       });
     } else {
       this.setState({
-        table0: table0.set('selected', [l, i, j]),
+        tables: this.state.tables.setIn([t, 'selected'], [l, i, j]),
       });
     }
   }
@@ -194,13 +196,13 @@ class Game extends Component {
     return (
         <div>
           <Table
-              turn={this.state.table0.get('turn')}
-              orientation={this.state.table0.get('orientation')}
-              position={this.state.table0.get('position')}
-              drops={this.state.table0.get('drops')}
-              selected={this.state.table0.get('selected')}
-              previous={this.state.table0.get('previous')}
-              handleClick={(l, i, j) => this.handleClick(l, i, j)}
+              turn={this.state.tables.getIn([0, 'turn'])}
+              orientation={this.state.tables.getIn([0, 'orientation'])}
+              position={this.state.tables.getIn([0, 'position'])}
+              drops={this.state.tables.getIn([0, 'drops'])}
+              selected={this.state.tables.getIn([0, 'selected'])}
+              previous={this.state.tables.getIn([0, 'previous'])}
+              handleClick={(l, i, j) => this.handleClick(0, l, i, j)}
           />
         </div>
     );
