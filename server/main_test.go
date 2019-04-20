@@ -11,7 +11,7 @@ func Test_duplicate(t *testing.T) {
 		{"3", "4"},
 	}
 	var dup [][]string
-	t.Run("duplicates board", func(t *testing.T) {
+	t.Run("duplicates position", func(t *testing.T) {
 		dup = duplicate(board)
 		if !reflect.DeepEqual(board, dup) {
 			t.Fail()

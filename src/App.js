@@ -19,8 +19,8 @@ const STARTING_POSITION = fromJS([
 const RED = 'r';
 const BLACK = 'b';
 
-const ON_BOARD = 1;
-const FROM_DROPS = 2;
+const ON_BOARD = 0;
+const FROM_DROPS = 1;
 
 function Square({piece, selected, onClick}) {
   return (
@@ -63,7 +63,7 @@ class Board extends Component {
               <Square
                   piece={piece}
                   key={key}
-                  onClick={location || piece.startsWith(turn) ? () => handleClick(ON_BOARD, i, j) : null}
+                  onClick={location !== null || piece.startsWith(turn) ? () => handleClick(ON_BOARD, i, j) : null}
                   selected={selected}
               />)}
         </div>);
@@ -149,6 +149,44 @@ class Game extends Component {
         }),
       ]),
     };
+    this.online = props.online || false;
+  }
+
+  componentDidMount() {
+    if (this.online) {
+      this.api_host = process.env.REACT_APP_API_HOST;
+      this.client = new EventSource(this.api_host);
+      this.client.onmessage = msg => {
+        const data = JSON.parse(msg.data);
+        console.log(data);
+        let tables = this.state.tables;
+        tables = tables.withMutations(t =>
+            t.setIn([0, 'position'], fromJS(data[0].position))
+                .setIn([0, 'drops'], fromJS({r: data[0].red_drops, b: data[0].black_drops}))
+                .setIn([0, 'turn'], data[0].turn)
+                .setIn([0, 'previous'], data[0].previous)
+                .setIn([1, 'position'], fromJS(data[1].position))
+                .setIn([1, 'drops'], fromJS({r: data[1].red_drops, b: data[1].black_drops}))
+                .setIn([1, 'turn'], data[1].turn)
+                .setIn([1, 'previous'], data[1].previous)
+        );
+        this.setState({
+          tables,
+        });
+      };
+    }
+  }
+
+  postMove(t, w, x, y, h, i, j) {
+    fetch(`${this.api_host}/moves`, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify({
+        table: t,
+        from: {location: w, x: x === RED ? 0 : x === BLACK ? 1 : x, y},
+        to: {x: i, y: j},
+      })
+    }).catch(console.error);
   }
 
   handleClick(t, l, i, j) {
@@ -193,6 +231,7 @@ class Game extends Component {
       this.setState({
         tables,
       });
+      this.postMove(t, location, x, y, l, i, j)
     } else {
       this.setState({
         tables: this.state.tables.setIn([t, 'selected'], [l, i, j]),
@@ -232,7 +271,7 @@ class App extends Component {
     return (
         <div className="App">
           <main className="App-content">
-            <Game/>
+            <Game online={process.env.REACT_APP_ONLINE_MODE}/>
           </main>
         </div>
     );
