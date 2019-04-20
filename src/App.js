@@ -139,6 +139,14 @@ class Game extends Component {
           orientation: RED,
           previous: [],
         }),
+        Map({
+          position: STARTING_POSITION,
+          drops: fromJS({r: [], b: []}),
+          turn: RED,
+          selected: [null, null, null],
+          orientation: BLACK,
+          previous: [],
+        }),
       ]),
     };
   }
@@ -168,21 +176,22 @@ class Game extends Component {
       } else {
         drops = drops.deleteIn([x, y])
       }
+      let tables = this.state.tables.update(t, tb => tb.merge(Map({
+        position: board,
+        drops,
+        turn: table.get('turn') === RED ? BLACK : RED,
+        selected: [null, null, null],
+        previous,
+      })));
       if (eaten) {
         if (eaten[0] === RED) {
-          drops = drops.update(BLACK, d => d.push(BLACK + eaten.substr(1)));
+          tables = tables.updateIn([1 - t, 'drops', BLACK], d => d.push(BLACK + eaten.substr(1)));
         } else {
-          drops = drops.update(RED, d => d.push(RED + eaten.substr(1)));
+          tables = tables.updateIn([1 - t, 'drops', RED], d => d.push(RED + eaten.substr(1)));
         }
       }
       this.setState({
-        tables: this.state.tables.update(t, tb => tb.merge(Map({
-          position: board,
-          drops,
-          turn: table.get('turn') === RED ? BLACK : RED,
-          selected: [null, null, null],
-          previous,
-        }))),
+        tables,
       });
     } else {
       this.setState({
@@ -203,6 +212,15 @@ class Game extends Component {
               selected={this.state.tables.getIn([0, 'selected'])}
               previous={this.state.tables.getIn([0, 'previous'])}
               handleClick={(l, i, j) => this.handleClick(0, l, i, j)}
+          />
+          <Table
+              turn={this.state.tables.getIn([1, 'turn'])}
+              orientation={this.state.tables.getIn([1, 'orientation'])}
+              position={this.state.tables.getIn([1, 'position'])}
+              drops={this.state.tables.getIn([1, 'drops'])}
+              selected={this.state.tables.getIn([1, 'selected'])}
+              previous={this.state.tables.getIn([1, 'previous'])}
+              handleClick={(l, i, j) => this.handleClick(1, l, i, j)}
           />
         </div>
     );
