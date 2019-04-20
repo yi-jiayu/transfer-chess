@@ -16,6 +16,16 @@
   min-height: 100vh;
 }
 
+@media (min-width: 1036px) {
+  .tables {
+    display: flex;
+  }
+
+  .table {
+    margin: 0 1em;
+  }
+}
+
 .square {
   background-clip: padding-box;
   background-position: center;

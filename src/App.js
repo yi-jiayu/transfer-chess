@@ -104,7 +104,7 @@ class Board extends Component {
 }
 
 function Table({turn, orientation, position, drops, selected, previous, handleClick}) {
-  return <div data-turn={turn}>
+  return <div className="table" data-turn={turn}>
     <div>
       <span className="turn-indicator"
             data-side={orientation === RED ? BLACK : RED}>(*) </span>Player 2
@@ -203,7 +203,7 @@ class Game extends Component {
 
   render() {
     return (
-        <div>
+        <div className="tables">
           <Table
               turn={this.state.tables.getIn([0, 'turn'])}
               orientation={this.state.tables.getIn([0, 'orientation'])}
